@@ -39,6 +39,11 @@ def chunk_documents_for_rerank(
         - chunked_documents: List of document chunks (may be more than input)
         - original_doc_indices: Maps each chunk back to its original document index
     """
+    # Non-positive window width cannot advance the sliding cursor (end == start),
+    # so return documents unchanged rather than spinning forever.
+    if max_tokens <= 0:
+        return list(documents), list(range(len(documents)))
+
     # Clamp overlap_tokens to ensure the loop always advances
     # If overlap_tokens >= max_tokens, the chunking loop would hang
     if overlap_tokens >= max_tokens:

@@ -111,3 +111,28 @@ class TestOverlapValidation:
         # Should complete without hanging
         assert len(chunked_docs) > 0
         assert all(idx == 0 for idx in doc_indices)
+
+    def test_max_tokens_zero_returns_documents_unchanged(self):
+        """max_tokens<=0 cannot form a positive window; must not hang."""
+        documents = [
+            " ".join([f"word{i}" for i in range(40)]),
+            "short",
+        ]
+
+        chunked_docs, doc_indices = chunk_documents_for_rerank(
+            documents, max_tokens=0, overlap_tokens=0
+        )
+
+        assert chunked_docs == documents
+        assert doc_indices == [0, 1]
+
+    def test_max_tokens_negative_returns_documents_unchanged(self):
+        """Negative max_tokens is the same non-positive window class as zero."""
+        documents = ["alpha beta gamma delta epsilon zeta"]
+
+        chunked_docs, doc_indices = chunk_documents_for_rerank(
+            documents, max_tokens=-1, overlap_tokens=32
+        )
+
+        assert chunked_docs == documents
+        assert doc_indices == [0]
