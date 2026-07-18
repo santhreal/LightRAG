@@ -2697,8 +2697,7 @@ def split_text_by_token_limit(
     """Split text by token limit with sentence-first, token-window fallback."""
     if not text:
         return []
-    # Match truncate_list_by_token_size / enforce_chunk_token_limit_before_embedding:
-    # a non-positive budget cannot form a window (range step 0 raises ValueError).
+    # Match truncate_list_by_token_size: non-positive budget cannot form a window.
     if max_tokens <= 0:
         return []
 
