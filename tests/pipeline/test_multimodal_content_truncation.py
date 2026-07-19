@@ -219,10 +219,14 @@ def test_table_budget_smaller_than_marker_keeps_table_wrapper():
     tok = _tokenizer()
     rows = [[f"r{i}c0", f"r{i}c1"] for i in range(10)]
     content = '<table id="t-tiny" format="json">' + json.dumps(rows) + "</table>"
+    # Budget fits a closed empty table (~41 chars) but not the truncation marker (~64).
     out, was_trimmed = trim_content_to_budget(
-        content, kind="tables", max_tokens=20, tokenizer=tok
+        content, kind="tables", max_tokens=50, tokenizer=tok
     )
     assert was_trimmed is True
-    assert len(tok.encode(out)) <= 20
+    assert len(tok.encode(out)) <= 50
     assert out.lstrip().startswith("<table ")
+    assert out.rstrip().endswith("</table>")
     assert _MARKER_RE.search(out) is None
+    # Char-only fallback would break the wrapper at this budget.
+    assert not content[:50].rstrip().endswith("</table>")
