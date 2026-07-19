@@ -198,6 +198,7 @@ def test_empty_content_returns_unchanged():
     assert out == ""
     assert was_trimmed is False
 
+
 @pytest.mark.offline
 def test_budget_smaller_than_marker_stays_within_cap():
     tok = _tokenizer()
@@ -208,5 +209,20 @@ def test_budget_smaller_than_marker_stays_within_cap():
     )
     assert was_trimmed is True
     assert len(tok.encode(out)) <= 20
+    assert len(out) == 20
+    assert out.startswith("hello")
     assert _MARKER_RE.search(out) is None
 
+
+@pytest.mark.offline
+def test_table_budget_smaller_than_marker_keeps_table_wrapper():
+    tok = _tokenizer()
+    rows = [[f"r{i}c0", f"r{i}c1"] for i in range(10)]
+    content = '<table id="t-tiny" format="json">' + json.dumps(rows) + "</table>"
+    out, was_trimmed = trim_content_to_budget(
+        content, kind="tables", max_tokens=20, tokenizer=tok
+    )
+    assert was_trimmed is True
+    assert len(tok.encode(out)) <= 20
+    assert out.lstrip().startswith("<table ")
+    assert _MARKER_RE.search(out) is None
