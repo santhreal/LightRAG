@@ -197,3 +197,16 @@ def test_empty_content_returns_unchanged():
     )
     assert out == ""
     assert was_trimmed is False
+
+@pytest.mark.offline
+def test_budget_smaller_than_marker_stays_within_cap():
+    tok = _tokenizer()
+    content = "hello world " * 50
+    # Marker alone is ~70 chars under the 1:1 char tokenizer; budget below that.
+    out, was_trimmed = trim_content_to_budget(
+        content, kind="equations", max_tokens=20, tokenizer=tok
+    )
+    assert was_trimmed is True
+    assert len(tok.encode(out)) <= 20
+    assert _MARKER_RE.search(out) is None
+

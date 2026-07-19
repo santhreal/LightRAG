@@ -833,6 +833,9 @@ def trim_content_to_budget(
         original=original_tokens, final=max_tokens
     )
     marker_tokens = _count_tokens(tokenizer, marker_probe)
+    # Marker alone can exceed a tiny budget; omit it and keep head content.
+    if marker_tokens >= max_tokens:
+        return _char_trim_trailing(content, max_tokens, tokenizer), True
     inner_budget = max(0, max_tokens - marker_tokens)
 
     trimmed_inner: str | None = None
@@ -848,7 +851,11 @@ def trim_content_to_budget(
     marker = _CONTENT_TRUNCATION_MARKER.format(
         original=original_tokens, final=final_tokens
     )
-    return trimmed_inner + marker, True
+    result = trimmed_inner + marker
+    # Digit growth in the marker can push past the budget; drop marker then.
+    if _count_tokens(tokenizer, result) > max_tokens:
+        return _char_trim_trailing(content, max_tokens, tokenizer), True
+    return result, True
 
 
 def build_surrounding(
