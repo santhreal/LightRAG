@@ -848,7 +848,11 @@ def trim_content_to_budget(
     marker = _CONTENT_TRUNCATION_MARKER.format(
         original=original_tokens, final=final_tokens
     )
-    return trimmed_inner + marker, True
+    result = trimmed_inner + marker
+    # Marker alone can exceed a tiny budget; drop it and keep head content.
+    if _count_tokens(tokenizer, result) > max_tokens:
+        return _char_trim_trailing(content, max_tokens, tokenizer), True
+    return result, True
 
 
 def build_surrounding(
