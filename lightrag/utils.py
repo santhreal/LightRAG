@@ -3823,7 +3823,8 @@ def sanitize_and_normalize_extracted_text(
         normalized_text = normalize_extracted_info(
             safe_input_text, remove_inner_quotes=remove_inner_quotes
         )
-        return normalized_text
+        # Keep GRAPH_FIELD_SEP out of free-form text (join/split delimiter).
+        return normalized_text.replace(GRAPH_FIELD_SEP, " ")
     return ""
 
 
