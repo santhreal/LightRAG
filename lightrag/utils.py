@@ -2399,6 +2399,9 @@ def wrap_embedding_func_with_attrs(**kwargs):
 def load_json(file_name):
     if not os.path.exists(file_name):
         return None
+    if os.path.isdir(file_name):
+        logger.warning("JSON path is a directory, treated as missing: %s", file_name)
+        return None
     with open(file_name, encoding="utf-8-sig") as f:
         content = f.read()
     # Empty/whitespace existing file: same contract as missing (callers use or {}).
