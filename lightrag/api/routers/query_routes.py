@@ -143,6 +143,14 @@ class QueryRequest(BaseModel):
                 raise ValueError("Each message 'role' must be a non-empty string.")
         return conversation_history
 
+    @field_validator("hl_keywords", "ll_keywords", mode="after")
+    @classmethod
+    def keywords_reject_blank(cls, keywords: list[str]) -> list[str]:
+        stripped = [kw.strip() for kw in keywords]
+        if any(not kw for kw in stripped):
+            raise ValueError("keywords cannot contain empty or whitespace-only entries")
+        return stripped
+
     def to_query_params(self, is_stream: bool) -> "QueryParam":
         """Converts a QueryRequest instance into a QueryParam instance."""
         # Use Pydantic's `.model_dump(exclude_none=True)` to remove None values automatically
