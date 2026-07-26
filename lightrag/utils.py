@@ -5423,6 +5423,10 @@ def validate_workspace(workspace: str) -> str:
             ...
         ValueError: Invalid workspace name '../../../etc': must not contain path separators ('/', '\\') or be a relative path reference ('.', '..')
     """
+    if "\x00" in workspace:
+        raise ValueError(
+            f"Invalid workspace name {workspace!r}: must not contain NUL bytes"
+        )
     if "/" in workspace or "\\" in workspace or workspace in (".", ".."):
         raise ValueError(
             f"Invalid workspace name {workspace!r}: must not contain path "

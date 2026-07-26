@@ -51,6 +51,7 @@ class TestPathTraversalRejected:
             "/etc/passwd",  # absolute path would discard working_dir on join
             "..\\..\\windows",  # Windows-style separator
             "foo\\bar",
+            "a\x00b",  # NUL truncates path components on disk
         ],
     )
     def test_raises_value_error(self, workspace):
