@@ -4401,10 +4401,15 @@ def pick_by_weighted_polling(
     if not entities_or_relations:
         return []
 
+    def _chunks_of(entity_rel: dict) -> list:
+        # .get(k, []) still returns None when the key is present as None.
+        chunks = entity_rel.get("sorted_chunks") or []
+        return chunks if isinstance(chunks, list) else []
+
     n = len(entities_or_relations)
     if n == 1:
         # Only one entity/relation, return its first max_related_chunks text chunks
-        entity_chunks = entities_or_relations[0].get("sorted_chunks", [])
+        entity_chunks = _chunks_of(entities_or_relations[0])
         return entity_chunks[:max_related_chunks]
 
     # Calculate expected text chunk count for each position (linear decrease)
@@ -4423,7 +4428,7 @@ def pick_by_weighted_polling(
     total_remaining = 0  # Accumulate remaining quotas
 
     for i, entity_rel in enumerate(entities_or_relations):
-        entity_chunks = entity_rel.get("sorted_chunks", [])
+        entity_chunks = _chunks_of(entity_rel)
         expected = expected_counts[i]
 
         # Actual allocatable count
@@ -4442,7 +4447,7 @@ def pick_by_weighted_polling(
 
         # Scan entities one by one, allocate one chunk when finding unused chunks
         for i, entity_rel in enumerate(entities_or_relations):
-            entity_chunks = entity_rel.get("sorted_chunks", [])
+            entity_chunks = _chunks_of(entity_rel)
 
             # Check if there are still unused chunks
             if used_counts[i] < len(entity_chunks):
