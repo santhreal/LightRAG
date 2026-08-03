@@ -129,6 +129,25 @@ class TestAggregateChunkScores:
         assert aggregated[2]["index"] == 2
         assert aggregated[2]["relevance_score"] == 0.5
 
+    def test_out_of_bounds_doc_index_safely_ignored(self):
+        """Test that out-of-bounds doc indices in doc_indices do not raise KeyError."""
+        chunk_results = [
+            {"index": 0, "relevance_score": 0.85},
+            {"index": 1, "relevance_score": 0.95},
+        ]
+        # doc_indices maps chunk 0 -> doc 10 (out of bounds for num_original_docs=2)
+        # and chunk 1 -> doc 1 (valid)
+        doc_indices = [10, 1]
+        num_original_docs = 2
+
+        aggregated = aggregate_chunk_scores(
+            chunk_results, doc_indices, num_original_docs, aggregation="max"
+        )
+
+        # Doc 10 should be safely ignored, leaving only doc 1
+        assert len(aggregated) == 1
+        assert aggregated[0]["index"] == 1
+        assert aggregated[0]["relevance_score"] == 0.95
     def test_max_aggregation_with_chunks(self):
         """Test max aggregation strategy with multiple chunks per document"""
         # 5 chunks: first 3 from doc 0, last 2 from doc 1
