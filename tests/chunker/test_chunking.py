@@ -1064,3 +1064,22 @@ def test_decode_preserves_content():
         tokens = tokenizer.encode(original)
         decoded = tokenizer.decode(tokens)
         assert decoded == original, f"Failed to decode: {original}"
+@pytest.mark.offline
+def test_chunk_overlap_token_size_ge_chunk_token_size_raises():
+    """Verify that chunk_overlap_token_size >= chunk_token_size raises ValueError."""
+    tokenizer = make_tokenizer()
+    with pytest.raises(ValueError, match="chunk_overlap_token_size .* must be < chunk_token_size"):
+        chunking_by_token_size(
+            tokenizer,
+            "Hello world test content",
+            chunk_overlap_token_size=20,
+            chunk_token_size=10,
+        )
+
+    with pytest.raises(ValueError, match="chunk_overlap_token_size .* must be < chunk_token_size"):
+        chunking_by_token_size(
+            tokenizer,
+            "Hello world test content",
+            chunk_overlap_token_size=10,
+            chunk_token_size=10,
+        )

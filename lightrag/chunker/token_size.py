@@ -127,6 +127,17 @@ def chunking_by_token_size(
     supplied ``chunking_func`` implementations. New file-based chunking
     dispatch uses :func:`chunking_by_fixed_token` instead.
     """
+    if chunk_token_size <= 0:
+        raise ValueError(f"chunk_token_size ({chunk_token_size}) must be > 0")
+    if chunk_overlap_token_size < 0:
+        raise ValueError(
+            f"chunk_overlap_token_size ({chunk_overlap_token_size}) must be >= 0"
+        )
+    if not (split_by_character and split_by_character_only):
+        if chunk_overlap_token_size >= chunk_token_size:
+            raise ValueError(
+                f"chunk_overlap_token_size ({chunk_overlap_token_size}) must be < chunk_token_size ({chunk_token_size})"
+            )
     tokens = tokenizer.encode(content)
     results: list[dict[str, Any]] = []
     if split_by_character:
