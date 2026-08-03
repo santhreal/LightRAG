@@ -102,6 +102,15 @@ class TestChunkDocumentsForRerank:
         # All chunks should map to document 0
         assert all(idx == 0 for idx in doc_indices)
 
+    def test_chunk_documents_nonpositive_max_tokens(self):
+        """Test that max_tokens <= 0 does not hang in an infinite loop."""
+        documents = ["Document with multiple words to test chunking safety"]
+        chunked_docs, doc_indices = chunk_documents_for_rerank(
+            documents, max_tokens=0, overlap_tokens=0
+        )
+        assert len(chunked_docs) > 0
+        assert len(doc_indices) == len(chunked_docs)
+
 
 class TestAggregateChunkScores:
     """Test suite for aggregate_chunk_scores function"""

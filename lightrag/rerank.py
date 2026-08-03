@@ -39,6 +39,12 @@ def chunk_documents_for_rerank(
         - chunked_documents: List of document chunks (may be more than input)
         - original_doc_indices: Maps each chunk back to its original document index
     """
+    if max_tokens < 1:
+        original_max = max_tokens
+        max_tokens = 1
+        logger.warning(
+            f"max_tokens ({original_max}) must be at least 1. Clamping to {max_tokens}."
+        )
     # Clamp overlap_tokens to ensure the loop always advances
     # If overlap_tokens >= max_tokens, the chunking loop would hang
     if overlap_tokens >= max_tokens:
