@@ -463,7 +463,7 @@ class JsonKVStorage(BaseKVStorage):
 
         for key, value in data.items():
             # Check if this is a legacy nested cache structure
-            if isinstance(value, dict) and all(
+            if isinstance(value, dict) and value and all(
                 isinstance(v, dict) and "return" in v for v in value.values()
             ):
                 # This looks like a legacy cache mode with nested structure
