@@ -100,12 +100,10 @@ def _sentence_spans(text: str, sentences: list[str]) -> list[tuple[int, int]]:
             continue
         start = text.find(sentence, cursor)
         if start < 0:
-            start = text.find(sentence)
-        if start < 0:
             start = cursor
         end = start + len(sentence)
         spans.append((start, end))
-        cursor = end
+        cursor = max(cursor, end)
     return spans
 
 
